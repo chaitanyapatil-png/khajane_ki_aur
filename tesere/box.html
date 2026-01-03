@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Treasure Reward Box</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+/* ===== RESET ===== */
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+/* ===== BODY ===== */
+body {
+  height: 100vh;
+  margin: 0;
+  background: radial-gradient(circle, #1b2735, #090a0f);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+/* ===== UI ===== */
+.ui {
+  text-align: center;
+  width: 260px;
+}
+
+/* ===== PASSWORD INPUT ===== */
+.pass-box {
+  position: relative;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+.eye {
+  position: absolute;
+  right: 10px;
+  top: 9px;
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+/* ===== BUTTON ===== */
+button {
+  margin-top: 8px;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  background: gold;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* ===== TREASURE BOX ===== */
+.treasure-wrapper {
+  position: relative;
+  width: 220px;
+  height: 160px;
+  margin: 20px auto;
+}
+
+.box-base {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 100px;
+  background: linear-gradient(#7a4a22, #5a3518);
+  border-radius: 12px;
+}
+
+.box-lid {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 60px;
+  background: linear-gradient(#9c6233, #6d3f1c);
+  border-radius: 12px 12px 0 0;
+  transform-origin: bottom;
+  transition: transform 1s ease;
+}
+
+.lock {
+  position: absolute;
+  top: 45px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 36px;
+  background: radial-gradient(circle, gold, #b8860b);
+  border-radius: 50%;
+}
+
+.glow {
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+  height: 80px;
+  background: radial-gradient(circle, rgba(255,215,0,.8), transparent 70%);
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+/* ===== CARD ===== */
+.card {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%) translateY(40px);
+  width: 160px;
+  height: 90px;
+  background: linear-gradient(#fff, #f2f2f2);
+  color: #333;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  opacity: 0;
+  cursor: pointer;
+  transition: all 1s ease;
+}
+
+/* ===== MESSAGE ===== */
+.card-message {
+  display: none;
+  padding: 10px;
+  font-size: 14px;
+}
+
+/* ===== OPEN STATE ===== */
+.treasure-wrapper.open .box-lid {
+  transform: rotateX(-110deg);
+}
+
+.treasure-wrapper.open .glow {
+  opacity: 1;
+}
+
+.treasure-wrapper.open .card {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-30px);
+}
+
+/* ===== HINT HEADER ===== */
+.hint-header {
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  padding: 10px 18px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
+  min-width: 260px;
+}
+
+/* ===== HINT TEXT ===== */
+#hintBox {
+  display: none;
+  font-size: 14px;
+  color: gold;
+  font-weight: bold;
+  margin-bottom: 4px;
+  animation: fadeIn 1s ease;
+}
+
+/* ===== TIMER ===== */
+#timer {
+  font-size: 12px;
+  color: #ddd;
+  letter-spacing: 0.5px;
+}
+
+/* ===== FADE ANIMATION ===== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== MOBILE RESPONSIVE ===== */
+@media (max-width: 480px) {
+  .hint-header {
+    font-size: 13px;
+    min-width: 220px;
+    padding: 8px 14px;
+  }
+}
+
+</style>
+</head>
+
+<body>
+<div class="hint-header">
+  <div id="hintBox">
+    💡 Hint: Password is combine of all ans, without space. password is <b>1</b> digit
+  </div>
+
+  <div id="timer"></div>
+</div>
+
+
+<div class="ui">
+  <h3>🔐 Enter Password</h3>
+
+  <div class="pass-box">
+    <input type="password" id="pass" placeholder="Password">
+    <span class="eye" onclick="togglePass()">👁</span>
+  </div>
+
+  <button onclick="tryUnlock()">Unlock</button>
+  <div id="msg"></div>
+
+  <div class="treasure-wrapper" id="box">
+    <div class="glow"></div>
+    <div class="box-lid"></div>
+    <div class="box-base"></div>
+    <div class="lock"></div>
+    <div class="card" onclick="revealCard()">
+      Tap Reward
+    </div>
+  </div>
+
+  <div class="card-message" id="rewardMsg" >
+    🎉 Congratulations! You found a secret reward!
+  </div>
+</div>
+
+<audio id="unlockSound" src="song/unlock.mp3"></audio>
+<audio id="wrong" src="song/wrong.mp3"></audio>
+<audio id="openSound" src="song/open.mp3"></audio>
+<audio id="found" src="song/found.mp3"></audio>
+<audio id="find" src="song/find.mp3"></audio>
+<audio id="hint" src="song/hint.mp3"></audio>
+
+
+
+
+<script>
+/* ===== PASSWORD (Base64 of "1234") ===== */
+const hiddenPass = "MTIzNA==";
+let opened = false;
+const i=1;
+
+/* Toggle password view */
+function togglePass() {
+  const input = document.getElementById("pass");
+  input.type = input.type === "password" ? "text" : "password";
+}
+
+/* Unlock logic */
+function tryUnlock() {
+  if (opened) return;
+
+  const input = document.getElementById("pass").value;
+  const msg = document.getElementById("msg");
+  const box = document.getElementById("box");
+
+  document.getElementById("unlockSound").play();
+    
+  if (input === atob(hiddenPass)) {
+    opened = true;
+
+    setTimeout(() => {
+        
+         document.getElementById("openSound").play();
+       
+        setTimeout(() => {
+            document.getElementById("found").play();
+
+            box.classList.add("open");
+            msg.textContent = "Chest Opened!";
+            msg.style.color = "lightgreen";
+      }, 1000);
+    }, 4000);
+  } else {
+    setTimeout(() => {
+        document.getElementById("wrong").play();
+        msg.textContent = "Wrong password!";
+        msg.style.color = "red";
+    }, 2500);
+  }
+}
+
+/* Reveal reward message */
+function revealCard() {
+    document.getElementById("rewardMsg").style.display = "block";
+    document.getElementById("find").play();
+
+}
+/* ===== DEVICE TIME BASED HINT TIMER ===== */
+
+const HINT_DELAY = 10 * 1000; // 10 seconds (change to minutes if needed)
+const HINT_START_KEY = "passwordHintStart";
+
+function initHintSystem() {
+  const now = Date.now();
+
+  // reset timer on every refresh
+  localStorage.setItem(HINT_START_KEY, now);
+
+  // hide hint box at start
+  document.getElementById("hintBox").style.display = "none";
+
+  checkHintStatus();
+}
+
+function checkHintStatus() {
+  const startTime = parseInt(localStorage.getItem(HINT_START_KEY));
+  const now = Date.now();
+  const passed = now - startTime;
+
+  if (passed >= HINT_DELAY) {
+    unlockHint();
+  } else {
+    showRemainingTime(HINT_DELAY - passed);
+  }
+}
+
+function unlockHint() {
+  document.getElementById("hint").play();
+  document.getElementById("hintBox").style.display = "block";
+  document.getElementById("timer").textContent = "Hint unlocked!";
+  document.getElementById("hint").play();
+}
+
+function showRemainingTime(ms) {
+  const timerEl = document.getElementById("timer");
+
+  const minutes = Math.floor(ms / 60000);
+  const seconds = Math.floor((ms % 60000) / 1000);
+
+  timerEl.textContent = `Hint unlocks in ${minutes}:${seconds
+    .toString()
+    .padStart(2, "0")} don't refresh browser`;
+
+  setTimeout(checkHintStatus, 1000);
+}
+
+window.addEventListener("load", () => {
+  initHintSystem();
+});
+
+</script>
+
+</body>
+</html>
